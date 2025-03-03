@@ -18,7 +18,20 @@ import seaborn as sns
 load_dotenv()
 
 # Initialize the Anthropic client
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+# client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+# Try to get the API key from Streamlit secrets first
+try:
+    anthropic_api_key = st.secrets["anthropic_api_key"]
+except (KeyError, FileNotFoundError):
+    # Fall back to environment variables for local development
+    anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not anthropic_api_key:
+        st.error("Anthropic API key not found. Please add it to your .streamlit/secrets.toml file or environment variables.")
+        st.stop()
+
+# Initialize the Anthropic client with the API key
+client = anthropic.Anthropic(api_key=anthropic_api_key)
 
 # Define prompts for each Business Model Canvas component
 BUSINESS_MODEL_CANVAS_PROMPTS = {
